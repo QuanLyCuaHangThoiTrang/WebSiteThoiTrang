@@ -10,25 +10,20 @@ class ShopController extends Controller
 {
     public function index()
     {
-         // Lấy tất cả chi tiết sản phẩm kèm theo thông tin sản phẩm
-         $chiTietSanPhams = ChiTietSanPham::with('sanPham','kichThuoc','mauSac')
-         ->whereIn('MaCTSP', function($query) {
-             // Truy vấn con để lấy MaCTSP đầu tiên cho mỗi MaSP
-             $query->selectRaw('MIN(MaCTSP)')
-                 ->from('chitietsanpham')
-                 ->groupBy('MaSP');
-         })
-         ->get();
-    
-        // Truyền dữ liệu vào view
-        return view('shop.index', ['chiTietSanPhams' => $chiTietSanPhams]);
+        $chiTietSanPhams = ChiTietSanPham::with(['sanPham', 'kichThuoc', 'mauSac'])
+        ->whereHas('sanPham', function($query) {
+            $query->where('TrangThai', 1); // Kiểm tra trạng thái của sản phẩm
+        })
+        ->whereIn('MaCTSP', function($query) {
+            // Truy vấn con để lấy MaCTSP đầu tiên cho mỗi MaSP
+            $query->selectRaw('MIN(MaCTSP)')
+                ->from('chitietsanpham')
+                ->groupBy('MaSP');
+        })
+        ->paginate(1); // Phân trang với 10 mục trên mỗi trang
+
+    // Truyền dữ liệu vào view
+    return view('shop.index', ['chiTietSanPhams' => $chiTietSanPhams]);
     }  
-    public function show($MaSP)
-    {
-        return '123';
-    } 
-    public function showct($MaSP)
-    {
-        return '1234';
-    } 
+    
 }

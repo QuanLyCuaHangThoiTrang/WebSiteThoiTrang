@@ -127,12 +127,31 @@
                             </div>
                             <div class="pagination-style-1" data-aos="fade-up" data-aos-delay="200">
                                 <ul>
-                                    <li><a class="active" href="#">1</a></li>
-                                    <li><a href="#">2</a></li>
-                                    <li><a href="#">3</a></li>
-                                    <li><a class="next" href="#"><i class=" ti-angle-double-right "></i></a></li>
+                                    {{-- Nút quay lại trang trước --}}
+                                    @if ($chiTietSanPhams->onFirstPage())
+                                        <li><a class="next disabled" href="#"><i class="ti-angle-double-left"></i></a></li>
+                                    @else
+                                        <li><a class="next" href="{{ $chiTietSanPhams->previousPageUrl() }}"><i class="ti-angle-double-left"></i></a></li>
+                                    @endif
+                            
+                                    {{-- Các nút số trang --}}
+                                    @foreach ($chiTietSanPhams->getUrlRange(1, $chiTietSanPhams->lastPage()) as $page => $url)
+                                        @if ($page == $chiTietSanPhams->currentPage())
+                                            <li><a class="active" href="#">{{ $page }}</a></li>
+                                        @else
+                                            <li><a href="{{ $url }}">{{ $page }}</a></li>
+                                        @endif
+                                    @endforeach
+                            
+                                    {{-- Nút đến trang kế tiếp --}}
+                                    @if ($chiTietSanPhams->hasMorePages())
+                                        <li><a class="next" href="{{ $chiTietSanPhams->nextPageUrl() }}"><i class="ti-angle-double-right"></i></a></li>
+                                    @else
+                                        <li><a class="next disabled" href="#"><i class="ti-angle-double-right"></i></a></li>
+                                    @endif
                                 </ul>
                             </div>
+                            
                         </div>
                         <div id="shop-2" class="tab-pane">
                             <div class="shop-list-wrap mb-30">

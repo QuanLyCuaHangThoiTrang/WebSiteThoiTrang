@@ -170,7 +170,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="product-details-content aos-init aos-animate" data-aos="fade-up" data-aos-delay="400">
-                    <h2 id="product-name"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">{{ $chiTietSanPham->SanPham->TenSP }}</font></font></h2>
+                    <h2 id="product-name"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">{{ $chiTietSanPham->SanPham->TenSP }} <span class="soluongton">({{ $SoLuongTonKho }})</span> </font></font></h2>
                     <div class="product-details-price">
                         <span class="old-price"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">25,89 đô la</font></font></span>
                         <span class="new-price"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">20,25 đô la</font></font></span>
@@ -210,12 +210,7 @@
                         <div class="single-product-cart btn-hover">
                             <a href="#"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Thêm vào giỏ hàng</font></font></a>
                         </div>
-                        <div class="single-product-wishlist">
-                            <a title="Danh sách mong muốn" href="wishlist.html"><i class="pe-7s-like"></i></a>
-                        </div>
-                        <div class="single-product-compare">
-                            <a title="So sánh" href="#"><i class="pe-7s-shuffle"></i></a>
-                        </div>
+                        
                     </div>
                     <div class="product-details-meta">
                         <ul>
@@ -223,7 +218,7 @@
                             <li><span class="title"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Size:</font></font></span>
                                 <ul class="tag">
                                     @foreach ($KichThuoc as $kt)
-                                    <li><a href="#"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">{{ $kt->TenSize }}, </font></font></a></li>
+                                    <li><a href="#"><font style="vertical-align: inherit;margin-right:10px"><font style="vertical-align: inherit;">{{ $kt->TenSize }}</font></font></a></li>
                                     @endforeach
                                 </ul>
                             </li>
@@ -697,8 +692,14 @@
 $(document).ready(function() {
     // Định nghĩa hàm changeProductColor trước
     function changeProductColor(maMau) {
-        var url = 'http://127.0.0.1:8000/test_endpoint/' + maMau;
-
+        var maSP = '{{ $chiTietSanPham->MaSP }}'; // Lấy mã sản phẩm từ backend
+        var maMau = $('.color-option.active').data('ma-mau') || '{{ $chiTietSanPham->MaMau }}';
+        var maSize = '{{ $chiTietSanPham->MaSize }}'; // Lấy mã kích thước từ thuộc tính data-ma-size
+        var url = 'http://127.0.0.1:8000/test_endpointa/' + maSP + '/' + maSize + '/' + maMau;
+       
+        console.log("masp", maSP);
+        console.log("mamau", maMau);
+        console.log("maSize", maSize);
         console.log('Request URL:', url); // Kiểm tra URL trong console
 
         $.ajax({
@@ -706,8 +707,17 @@ $(document).ready(function() {
             method: 'GET',
             success: function(data) {
                 console.log('AJAX Response:', data); // Kiểm tra dữ liệu phản hồi trong console
-                $('#product-image').attr('src', data.imageUrl); 
-                $('#product-name').text(data.productName); 
+                //$('#product-image').attr('src', data.imageUrl); 
+                //$('#product-name').text("12333"); 
+                $('.soluongton').text('(' + data.SoLuongTonKho + ')'); 
+                if(data.SoLuongTonKho == 0)
+                    {
+                        $('.single-product-cart').hide();
+                    }   
+                    else
+                    {
+                        $('.single-product-cart').show();
+                    }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error('AJAX Error:', textStatus, errorThrown);
@@ -737,6 +747,7 @@ $(document).ready(function() {
 
         // Gọi hàm để thay đổi màu sắc của sản phẩm
         changeProductColor(maMau);
+
     });
 
     // Sự kiện khi click vào tùy chọn kích thước
@@ -758,28 +769,32 @@ $(document).ready(function() {
         var newUrl = baseUrl + maSP + '/' + maSize + '/' + maMau;
         console.log('New URL after size change:', newUrl);
         window.history.pushState(null, '', newUrl);
+        $.ajax({
+            url: 'http://127.0.0.1:8000/test_endpointa/' + maSP + '/' + maSize + '/' + maMau,
+            method: 'GET',
+            success: function(data) {
+                console.log('AJAX Response:', data); // Kiểm tra dữ liệu phản hồi trong console
 
-        // Thay đổi thông tin sản phẩm dựa trên kích thước mới
-       // changeProductDetails(maSP, maMau, maSize);
-       //function changeProductDetails(maSP, maMau, maSize) {
-            // Logic để thay đổi chi tiết sản phẩm dựa trên mã sản phẩm, mã màu và mã kích thước
-           // var url = 'http://127.0.0.1:8000/get-product-details/' + maSP + '/' + maMau + '/' + maSize;
-            
-           // $.ajax({
-           //     url: url,
-             //   method: 'GET',
-              //  success: function(data) {
-              //      console.log('Product Details:', data); // Kiểm tra dữ liệu phản hồi trong console
-               //     $('#product-image').attr('src', data.imageUrl); 
-               //     $('#product-name').text(data.productName);
-                    // Cập nhật các thông tin khác của sản phẩm nếu cần
-               // },
-              ///  error: function(jqXHR, textStatus, errorThrown) {
-               //     console.error('AJAX Error:', textStatus, errorThrown);
-               //     alert('Không thể cập nhật chi tiết sản phẩm.');
-             //  }
-           // });
-        //}
+                // Cập nhật số lượng tồn kho dựa trên dữ liệu phản hồi
+                if (data.SoLuongTonKho !== undefined) {
+                    $('.soluongton').text('(' + data.SoLuongTonKho + ')'); 
+                    if(data.SoLuongTonKho == 0)
+                    {
+                        $('.single-product-cart').hide();
+                    }   
+                    else
+                    {
+                        $('.single-product-cart').show();
+                    }
+                } else {
+                    console.error('Dữ liệu phản hồi không chứa thuộc tính SoLuongTonKho.');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('AJAX Error:', textStatus, errorThrown);
+                alert('Không thể lấy thông tin số lượng tồn kho.');
+            }
+        });
     });
 
     function updateSizes(maMau, maSP) {
@@ -798,7 +813,7 @@ $(document).ready(function() {
 
                 // Duyệt qua từng kích thước và thêm vào danh sách
                 $.each(data, function(index, size) {
-                    sizeList.append('<li><a href="#" class="size-option" data-ma-size="' + size.MaSize + '"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">' + size.TenSize + '</font></font></a></li>');
+                    sizeList.append('<li><a href="#" class="size-option" data-ma-size="' + size.MaSize + '"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;margin-right:10px">' + size.TenSize + '</font></font></a></li>');
                 });
 
                 // Lấy kích thước đầu tiên và cập nhật URL

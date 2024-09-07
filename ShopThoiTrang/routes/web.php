@@ -21,10 +21,6 @@ Route::get('/checkout', [CheckoutController::class,'index']);
 Route::get('/product_detail', [ProductDetailController::class,'index']);
 Route::get('/product_detail/{MaSP}/{MaSize}/{MaMau}', [ProductDetailController::class, 'index']);
 Route::get('/wishlist', [WishlistController::class,'index']);
-Route::get('/test_endpoint/{MaMau}', function($MaMau) {
-    return response()->json([
-        'imageUrl' => '123', // URL hình ảnh mẫu
-        'productName' => '111'
-    ]);
-});
+Route::get('/test_endpoint/{MaMau}', [ProductDetailController::class, 'getProductDetails']);
 Route::get('/get-sizes-by-color/{MaMau}/{MaSP}', [ProductDetailController::class, 'getSizesByColor']);
+Route::get('/test_endpointa/{MaSP}/{MaSize}/{MaMau}', [ProductDetailController::class, 'getProductDetails1']);
